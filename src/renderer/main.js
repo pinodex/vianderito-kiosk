@@ -4,12 +4,15 @@ import Pusher from 'pusher-js'
 import Echo from 'laravel-echo'
 import axios from 'axios'
 
+window.Pusher = Pusher
+
+if (process.env.NODE_ENV === 'development')
+  Pusher.logToConsole = true
+
 import App from './App'
 import router from './router'
 
-import 'bulma'
-
-Pusher.logToConsole = true
+import 'bulma/css/bulma.css'
 
 if (!process.env.IS_WEB)
   Vue.use(require('vue-electron'))
