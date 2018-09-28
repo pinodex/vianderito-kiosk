@@ -21,7 +21,8 @@ function createWindow () {
     height: 563,
     useContentSize: true,
     width: 1000,
-    kiosk: process.env.NODE_ENV !== 'development'
+    kiosk: process.env.NODE_ENV !== 'development',
+    webPreferences: {webSecurity: false}
   })
 
   mainWindow.setMenu(null)

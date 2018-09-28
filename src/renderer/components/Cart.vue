@@ -1,7 +1,7 @@
 <template>
   <section class="cart-page">
     <div class="heading">
-      <img class="logo" src="/static/img/vianderito-text.png">
+      <img class="logo" src="../../../static/img/vianderito-text.png">
     </div>
 
     <div class="columns is-marginless cart-content">
@@ -42,11 +42,11 @@
       <div class="column">
         <div class="cart-sidebar-container">
           <div class="qr-display">
-            <p>Please scan the QR code below with your Vianderito app</p>
+            <template v-show="transactionId">
+              <p>Please scan the QR code below with your Vianderito app</p>
 
-            <figure>
-              <img src="/static/img/sample-qr.png">
-            </figure>
+              <figure ref="qr" class="image is-square"></figure>
+            </template>
           </div>
 
           <div class="total-display">
@@ -64,7 +64,7 @@
 
 <style lang="scss" scoped>
   .cart-page {
-    background: url(/static/img/background.jpg);
+    background: url('../../../static/img/background.jpg');
     background-size: cover;
     background-position: center center;
     background-repeat: no-repeat;
@@ -134,10 +134,14 @@
 </style>
 
 <script>
+  import qrcode from 'qrcode-generator'
+
   export default {
     data () {
       return {
-        items: []
+        items: [],
+
+        transactionId: null
       }
     },
 
@@ -151,8 +155,57 @@
       }
     },
 
+    watch: {
+      transactionId (value) {
+        let qr = qrcode(4, 'L')
+
+        qr.addData(value)
+        qr.make()
+
+        this.$refs.qr.innerHTML = qr.createImgTag(16)
+      }
+    },
+
     mounted () {
-      this.$kiosk.listen('.cart.update', items => this.items = items)
+      this.$kiosk.listen('.cart.update', items => {
+        this.items = items
+
+        this.setTransactionProducts()
+      })
+
+      this.$kiosk.listen('.transaction.new', () => this.newTransaction())
+
+      this.$general.listen('.purchase.complete', purchase => {
+        let params = { purchase }
+
+        this.$router.push({ name: 'purchase_complete', params })
+      })
+
+      this.newTransaction();
+    },
+
+    methods: {
+      newTransaction () {
+        const loadingComponent = this.$loading.open()
+
+        this.$http.post('/transactions')
+          .then(response => {
+            this.transactionId = response.data.id
+
+            loadingComponent.close()
+          })
+      },
+
+      setTransactionProducts () {
+        let url = `/transactions/${this.transactionId}/products`,
+            ids = this.items.map(item => {
+              let product_id = item.product_id, quantity = item.quantity
+
+              return { product_id, quantity }
+            })
+
+        this.$http.put(url, ids)
+      }
     }
   }
 </script>

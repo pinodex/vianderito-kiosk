@@ -9,6 +9,13 @@ export default new Router({
       path: '/',
       name: 'index',
       component: require('@/components/Cart').default
+    },
+
+    {
+      path: '/purchase_complete',
+      name: 'purchase_complete',
+      component: require('@/components/PurchaseComplete').default,
+      props: true
     }
   ]
 })

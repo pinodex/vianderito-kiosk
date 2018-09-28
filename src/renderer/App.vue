@@ -1,6 +1,8 @@
 <template>
   <div id="app">
-    <router-view></router-view>
+    <transition name="fade">
+      <router-view></router-view>
+    </transition>
   </div>
 </template>
 
@@ -22,6 +24,19 @@
 
   .table .is-fit {
     width: 1%;
+  }
+
+  /*
+   * Animations
+   */
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: opacity 200ms ease;
+  }
+
+  .fade-enter,
+  .fade-leave-to {
+    opacity: 0;
   }
 </style>
 
