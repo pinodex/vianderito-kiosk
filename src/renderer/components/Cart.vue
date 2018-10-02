@@ -20,7 +20,7 @@
 
             <tbody>
               <tr v-for="item in items">
-                <td>
+                <td v-if="item.product && item.product.picture">
                   <figure class="image is-48x48">
                     <img :src="item.product.picture.thumbnail">
                   </figure>
@@ -28,11 +28,11 @@
 
                 <td>{{ item.product.name }}</td>
 
-                <td>{{ item.product.front_inventory.price | currency('₱') }}</td>
+                <td>{{ item.price | currency('₱') }}</td>
 
-                <td>{{ item.quantity }}</td>
+                <td>{{ item.pivot.quantity }}</td>
 
-                <td>{{ item.subtotal | currency('₱') }}</td>
+                <td>{{ (item.price * item.pivot.quantity) | currency('₱') }}</td>
               </tr>
             </tbody>
           </table>
@@ -149,7 +149,7 @@
       totalAmount () {
         let total = 0
 
-        this.items.forEach(item => total += item.subtotal)
+        this.items.forEach(item => total += item.pivot.quantity * item.price)
 
         return total
       }
@@ -167,13 +167,11 @@
     },
 
     mounted () {
-      this.$kiosk.listen('.cart.update', items => {
-        this.items = items
-
-        this.setTransactionProducts()
-      })
+      this.$kiosk.listen('.cart.update', items => this.items = items)
 
       this.$kiosk.listen('.transaction.new', () => this.newTransaction())
+
+      this.$general.listen('.tag.receive', items => this.epcToProducts(items))
 
       this.$general.listen('.purchase.complete', purchase => {
         let params = { purchase }
@@ -190,13 +188,16 @@
 
         this.$http.post('/transactions')
           .then(response => {
+            this.items = []
             this.transactionId = response.data.id
 
             loadingComponent.close()
           })
       },
 
-      setTransactionProducts () {
+      setTransactionProducts (products) {
+        if (!this.transactionId) return
+
         let url = `/transactions/${this.transactionId}/products`,
             ids = this.items.map(item => {
               let product_id = item.product_id, quantity = item.quantity
@@ -204,7 +205,12 @@
               return { product_id, quantity }
             })
 
-        this.$http.put(url, ids)
+        this.$http.put(url, products)
+      },
+
+      epcToProducts (epcs) {
+        this.$http.post('/products', epcs)
+          .then(response => this.setTransactionProducts(response.data))
       }
     }
   }
