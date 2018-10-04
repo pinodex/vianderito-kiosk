@@ -167,6 +167,12 @@
     },
 
     mounted () {
+      if (process.env.CLEARANCE_MODE) {
+        this.$router.push({ name: 'clearance' })
+
+        return
+      }
+      
       this.$kiosk.listen('.cart.update', items => this.items = items)
 
       this.$kiosk.listen('.transaction.new', () => this.newTransaction())
@@ -198,12 +204,7 @@
       setTransactionProducts (products) {
         if (!this.transactionId) return
 
-        let url = `/transactions/${this.transactionId}/products`,
-            ids = this.items.map(item => {
-              let product_id = item.product_id, quantity = item.quantity
-
-              return { product_id, quantity }
-            })
+        let url = `/transactions/${this.transactionId}/products`
 
         this.$http.put(url, products)
       },

@@ -16,6 +16,12 @@ export default new Router({
       name: 'purchase_complete',
       component: require('@/components/PurchaseComplete').default,
       props: true
+    },
+
+    {
+      path: '/clearance',
+      name: 'clearance',
+      component: require('@/components/Clearance').default
     }
   ]
 })
