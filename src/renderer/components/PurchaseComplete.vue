@@ -85,6 +85,8 @@
         if (items.length == 0)
           this.$router.push({ name: 'index' })
       })
+
+      setTimeout(() => this.$router.push({ name: 'index' }), 10000)
     }
   }
 </script>

@@ -37,7 +37,7 @@ let baseURL = 'https://beta.vianderito.xyz/api/kiosk/',
     }
 
 if (process.env.NODE_ENV == 'development') {
-  baseURL = 'http://localhost:8000/api/kiosk/'
+  //baseURL = 'http://localhost:8000/api/kiosk/'
 }
 
 Vue.http = Vue.prototype.$http = axios.create({ baseURL, headers })

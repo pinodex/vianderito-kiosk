@@ -167,7 +167,7 @@
     },
 
     mounted () {
-      if (process.env.CLEARANCE_MODE) {
+      if (process.env.CLEARANCE_MODE == 'true') {
         this.$router.push({ name: 'clearance' })
 
         return

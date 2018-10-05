@@ -8,7 +8,7 @@
       <div class="columns is-centered">
         <div class="column is-4">
           <div class="box">
-            <figure class="image is-128x128 clear-indicator" v-if="isCleared">
+            <figure class="image is-128x128 clear-indicator" v-if="isCleared" @click="test">
               <img class="check" src="../../../static/img/green-check.png">
             </figure>
 
@@ -23,7 +23,7 @@
       </div>
     </div>
 
-    <audio ref="alarm" src="../../../static/alarm.ogg"></audio>
+    <audio ref="alarm" :src="alarm" loop></audio>
   </section>
 </template>
 
@@ -58,10 +58,19 @@
 </style>
 
 <script>
+  import fs from 'fs'
+  import path from 'path'
+
   export default {
     data () {
       return {
         isCleared: true
+      }
+    },
+
+    computed: {
+      alarm () {
+        return path.join(__static, '/audio/alarm.ogg')
       }
     },
 
@@ -83,6 +92,8 @@
 
     methods: {
       checkEpcs (epcs) {
+        if (!this.isCleared) return
+
         this.$http.post('/clearance', epcs)
           .then(response => {
             let hasUnclear = response.data.find(e => !e.status)
@@ -93,6 +104,10 @@
 
       disarm () {
         this.isCleared = true
+      },
+
+      test () {
+        this.isCleared = false
       }
     }
   }
